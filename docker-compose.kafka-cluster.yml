@@ -3,95 +3,119 @@ networks:
     driver: bridge
 
 services:
-  zookeeper-1:
-    image: "confluentinc/cp-zookeeper:latest"
-    container_name: zookeeper-1
-    environment:
-      ZOOKEEPER_SERVER_ID: 1
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-      ZOOKEEPER_INIT_LIMIT: 5
-      ZOOKEEPER_SYNC_LIMIT: 2
-    ports:
-      - "12181:2181"
 
-  zookeeper-2:
-    image: "confluentinc/cp-zookeeper:latest"
-    container_name: zookeeper-2
-    environment:
-      ZOOKEEPER_SERVER_ID: 2
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-      ZOOKEEPER_INIT_LIMIT: 5
-      ZOOKEEPER_SYNC_LIMIT: 2
+  zookeeper1:
+    image: bitnami/zookeeper:3.7
+    container_name: zookeeper1
+    networks:
+      - kafka-net
     ports:
-      - "22181:2181"
+      - '12181:2181'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
 
-  zookeeper-3:
-    image: "confluentinc/cp-zookeeper:latest"
-    container_name: zookeeper-3
-    environment:
-      ZOOKEEPER_SERVER_ID: 3
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-      ZOOKEEPER_INIT_LIMIT: 5
-      ZOOKEEPER_SYNC_LIMIT: 2
+  zookeeper2:
+    image: bitnami/zookeeper:3.7
+    container_name: zookeeper2
+    networks:
+      - kafka-net
     ports:
-      - "32181:2181"
+      - '22181:2181'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
 
-  kafka-1:
-    image: "confluentinc/cp-kafka:latest"
-    container_name: kafka-1
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092,PLAINTEXT_HOST://localhost:19092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+  zookeeper3:
+    image: bitnami/zookeeper:3.7
+    container_name: zookeeper3
+    networks:
+      - kafka-net
     ports:
-      - "19092:19092"
+      - '32181:2181'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+  kafka1:
+    image: bitnami/kafka:3.4
+    container_name: kafka1
+    networks:
+      - kafka-net
+    ports:
+      - '9092:9092'
+      - '19092:19092'
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper1:2181,zookeeper2:2181,zookeeper3:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_LISTENERS=INTERNAL://:9092,EXTERNAL://:19092
+      - KAFKA_ADVERTISED_LISTENERS=INTERNAL://kafka1:9092,EXTERNAL://localhost:19092
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - KAFKA_NUM_PARTITIONS=3
     depends_on:
-      - zookeeper-1
-      - zookeeper-2
-      - zookeeper-3
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
 
-  kafka-2:
-    image: "confluentinc/cp-kafka:latest"
-    container_name: kafka-2
-    environment:
-      KAFKA_BROKER_ID: 2
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:9092,PLAINTEXT_HOST://localhost:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+  kafka2:
+    image: bitnami/kafka:3.4
+    container_name: kafka2
+    networks:
+      - kafka-net
     ports:
-      - "29092:29092"
+      - '9093:9093'
+      - '19093:19093'   # EXTERNAL 리스너 포트를 19093으로 매핑
+    environment:
+      - KAFKA_BROKER_ID=2
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper1:2181,zookeeper2:2181,zookeeper3:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_LISTENERS=INTERNAL://:9093,EXTERNAL://:19093
+      - KAFKA_ADVERTISED_LISTENERS=INTERNAL://kafka2:9093,EXTERNAL://localhost:19093
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - KAFKA_NUM_PARTITIONS=3
     depends_on:
-      - zookeeper-1
-      - zookeeper-2
-      - zookeeper-3
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
 
-  kafka-3:
-    image: "confluentinc/cp-kafka:latest"
-    container_name: kafka-3
-    environment:
-      KAFKA_BROKER_ID: 3
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-3:9092,PLAINTEXT_HOST://localhost:39092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+  kafka3:
+    image: bitnami/kafka:3.4
+    container_name: kafka3
+    networks:
+      - kafka-net
     ports:
-      - "39092:39092"
+      - '9094:9094'
+      - '19094:19094'   # EXTERNAL 리스너 포트를 19094으로 매핑
+    environment:
+      - KAFKA_BROKER_ID=3
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper1:2181,zookeeper2:2181,zookeeper3:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_LISTENERS=INTERNAL://:9094,EXTERNAL://:19094
+      - KAFKA_ADVERTISED_LISTENERS=INTERNAL://kafka3:9094,EXTERNAL://localhost:19094
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - KAFKA_NUM_PARTITIONS=3
     depends_on:
-      - zookeeper-1
-      - zookeeper-2
-      - zookeeper-3
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
+
+  kafka-ui:
+    image: 'provectuslabs/kafka-ui'
+    container_name: kafka-ui
+    networks:
+      - kafka-net
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
+    environment:
+      KAFKA_CLUSTERS_0_NAME: "local-cluster"
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka1:9092,kafka2:9093,kafka3:9094"
+      KAFKA_CLUSTERS_0_ZOOKEEPER: "zookeeper1:2181,zookeeper2:2181,zookeeper3:2181"
+      KAFKA_CLUSTERS_0_READONLY: "false"
