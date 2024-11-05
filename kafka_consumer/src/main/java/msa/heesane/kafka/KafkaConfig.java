@@ -27,9 +27,6 @@ public class KafkaConfig {
   @Value("${spring.kafka.consumer.value-deserializer}")
   private String valueDeserializer;
 
-  @Value("${spring.kafka.template.default-topic}")
-  private String topic;
-
   @Bean
   public ConsumerFactory<String, Object> consumerFactory(){
 
