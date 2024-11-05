@@ -1,13 +1,13 @@
 spring:
   kafka:
-    bootstrap-servers: localhost:9094 # Kafka ?? ??
+    bootstrap-servers: localhost:9094 # Kafka Broker Address
     consumer:
-      group-id: my-group # Consumer ?? ID
+      group-id: my-group # Consumer Group ID
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
     template:
-      default-topic: my-topic # ?? Kafka ?? ??
+      default-topic: my-topic # Default Kafka Topic Setting
 
 server:
   port: 8082

@@ -1,11 +1,11 @@
 spring:
   kafka:
-    bootstrap-servers: localhost:9094  # Kafka ??? ??
+    bootstrap-servers: localhost:9094  # Kafka Broker Address
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
     template:
-      default-topic: my-topic  # ?? Kafka ?? ??
+      default-topic: my-topic  # Default Kafka Topic Setting
 
 server:
   port: 8081
