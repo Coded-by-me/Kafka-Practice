@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.5'
 	id 'io.spring.dependency-management' version '1.1.6'
+	id "com.github.davidmc24.gradle.plugin.avro" version '1.9.1'
 }
 
 group = 'msa.heesane'
@@ -14,6 +15,8 @@ java {
 }
 
 configurations {
+//	integrationTestImplementation.extendsFrom testImplementation
+//	integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
@@ -31,10 +34,29 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.kafka:spring-kafka-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	implementation 'io.confluent:kafka-avro-serializer:7.0.1'
-	implementation 'org.apache.avro:avro:1.11.1'
+
+	// Avro
+	implementation 'io.confluent:kafka-avro-deserializer:6.2.0'
+	implementation 'org.apache.avro:avro:1.12.0'
 }
+
+//sourceSets {
+//	integrationTest {
+//		java.srcDir file('src/integrationTest/java')
+//		resources.srcDir file('src/integrationTest/resources')
+//	}
+//}
 
 tasks.named('test') {
 	useJUnitPlatform()
 }
+//
+//tasks.register('integrationTest', Test) {
+//	description = 'Runs the integration tests.'
+//	group = 'verification'
+//	testClassesDirs = sourceSets.integrationTest.output.classesDirs
+//	classpath = sourceSets.integrationTest.runtimeClasspath
+//	shouldRunAfter test
+//}
+//
+//check.dependsOn integrationTest
