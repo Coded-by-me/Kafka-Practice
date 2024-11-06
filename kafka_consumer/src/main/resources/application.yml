@@ -8,6 +8,8 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
     template:
       default-topic: my-topic # Default Kafka Topic Setting
+    properties:
+      schema.registry.url: http://localhost:8081 # Schema Registry Address
 
 server:
   port: 8082
