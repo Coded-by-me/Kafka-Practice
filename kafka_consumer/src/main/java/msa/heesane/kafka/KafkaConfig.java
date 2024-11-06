@@ -22,15 +22,18 @@ public class KafkaConfig {
   @Value("${spring.kafka.consumer.group-id}")
   private String groupId;
 
+  @Value("${spring.kafka.properties.schema.registry.url}")
+  private String schemaRegistryUrl;
+
   @Bean
   public ConsumerFactory<String, Object> consumerFactory(){
 
     Map<String, Object> config = new HashMap<>();
-
     config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
     config.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-    config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, Serdes.String().serializer().getClass().getName());
-    config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, Serdes.String().deserializer().getClass().getName());
+    config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, Serdes.String().deserializer().getClass().getName());
+    config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer.class);
+    config.put("schema.registry.url", schemaRegistryUrl);
 
     return new DefaultKafkaConsumerFactory<>(config);
   }
