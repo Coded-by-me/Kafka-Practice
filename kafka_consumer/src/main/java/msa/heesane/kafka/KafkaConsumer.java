@@ -1,5 +1,6 @@
 package msa.heesane.kafka;
 
+import com.example.avro.TestDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.time.LocalDateTime;
