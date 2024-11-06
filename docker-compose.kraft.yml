@@ -93,10 +93,34 @@ services:
       - kafka-0
       - kafka-1
       - kafka-2
+      - schema-registry0
     environment:
       KAFKA_CLUSTERS_0_NAME: "local-cluster"
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka-0:9092,kafka-1:9092,kafka-2:9092"
       KAFKA_CLUSTERS_0_READONLY: "false"
+      KAFKA_CLUSTERS_0_METRICS_PORT: 9997
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: "http://schema-registry:8081"
+
+  ## Schema Registry
+  schema-registry0:
+    image: confluentinc/cp-schema-registry:7.2.1.arm64
+    container_name: schema-registry0
+    networks:
+    - kafka-net
+    ports:
+    - "8081:8081"
+    depends_on:
+    - kafka-0
+    - kafka-1
+    - kafka-2
+    environment:
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "PLAINTEXT://kafka-0:9092,kafka-1:9092,kafka-2:9092"
+      SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: PLAINTEXT
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry0
+      SCHEMA_REGISTRY_LISTENERS: "http://schema-registry0:8081"
+      SCHEMA_REGISTRY_SCHEMA_REGISTRY_INTER_INSTANCE_PROTOCOL: "http"
+      SCHEMA_REGISTRY_LOG4J_ROOT_LOGLEVEL: INFO
+      SCHEMA_REGISTRY_KAFKASTORE_TOPIC: _schemas
 
 volumes:
   kafka_0_data:
