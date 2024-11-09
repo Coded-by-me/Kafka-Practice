@@ -8,8 +8,6 @@ spring:
         allow.auto.create.topics: false
       group-id: my-group # Consumer Group ID
       auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
     template:
       default-topic: my-topic # Default Kafka Topic Setting
 
