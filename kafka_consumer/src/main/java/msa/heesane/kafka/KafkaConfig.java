@@ -4,7 +4,7 @@ import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,8 +23,11 @@ public class KafkaConfig {
   @Value("${spring.kafka.consumer.group-id}")
   private String groupId;
 
-  @Value("${spring.kafka.consumer.properties.schema.registry.url}")
+  @Value("${spring.kafka.properties.schema.registry.url}")
   private String schemaRegistryUrl;
+
+  @Value("${spring.kafka.properties.specific.avro.reader}")
+  private String specificAvroReader;
 
   @Bean
    public ConsumerFactory<String, Object> consumerFactory() {
@@ -32,9 +35,12 @@ public class KafkaConfig {
     Map<String, Object> config = new HashMap<>();
     config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
     config.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-    config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, Serdes.String().deserializer().getClass().getName());
+    config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
     config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer.class.getName());
     config.put("schema.registry.url", schemaRegistryUrl);
+    config.put(ConsumerConfig.ALLOW_AUTO_CREATE_TOPICS_CONFIG, false);
+    config.put("specific.avro.reader", specificAvroReader);
+
     return new DefaultKafkaConsumerFactory<>(config);
   }
 
