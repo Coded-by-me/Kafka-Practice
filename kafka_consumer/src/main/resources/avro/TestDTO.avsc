@@ -1,6 +1,6 @@
 {
   "name": "TestDTO",
-  "namespace": "com.example.avro",
+  "namespace": "msa.heesane.avro_sample",
   "type": "record",
   "fields": [
     {
