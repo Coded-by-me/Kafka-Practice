@@ -2,14 +2,13 @@ spring:
   kafka:
     bootstrap-servers: localhost:19092,localhost:29092,localhost:39092 # Kafka Broker Address
     consumer:
-      properties:
-        schema.registry.url: http://localhost:8081 # Schema Registry Address
-        specific.avro.reader: true
-        allow.auto.create.topics: false
       group-id: my-group # Consumer Group ID
       auto-offset-reset: earliest
     template:
       default-topic: my-topic # Default Kafka Topic Setting
-
+    properties:
+      schema.registry.url: http://localhost:8081 # Schema Registry Address
+      specific.avro.reader: true
+      allow.auto.create.topics: false
 server:
-  port: 8082
+  port: 8083
