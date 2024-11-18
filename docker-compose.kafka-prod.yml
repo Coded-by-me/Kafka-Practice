@@ -1,6 +1,6 @@
 networks:
-  kafka-net:
-    driver: bridge
+  home_network:
+    external: true
 
 services:
   kafka-0:
@@ -28,7 +28,8 @@ services:
     volumes:
       - kafka_0_data:/bitnami/kafka
     networks:
-      - kafka-net
+      - home_network
+  
   kafka-1:
     image: docker.io/bitnami/kafka:3.8
     container_name: kafka-1
@@ -54,7 +55,8 @@ services:
     volumes:
       - kafka_1_data:/bitnami/kafka
     networks:
-      - kafka-net
+      - home_network
+  
   kafka-2:
     image: docker.io/bitnami/kafka:3.8
     container_name: kafka-2
@@ -80,30 +82,29 @@ services:
     volumes:
       - kafka_2_data:/bitnami/kafka
     networks:
-      - kafka-net
+      - home_network
 
   kafka-ui:
     image: 'provectuslabs/kafka-ui'
     container_name: kafka-ui
     networks:
-      - kafka-net
+      - home_network
     ports:
-      - "8180:8080"
+      - "10000:8080"
     depends_on:
       - kafka-0
       - kafka-1
       - kafka-2
       - schema-registry0
     environment:
-      KAFKA_CLUSTERS_0_NAME: "local-cluster"
+      KAFKA_CLUSTERS_0_NAME: "OnPremise"
       KAFKA_CLUSTERS_0_ZOOKEEPER: "zookeeper-0:2181,zookeeper-1:2181,zookeeper-2:2181"
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka-0:9092,kafka-1:9092,kafka-2:9092"
       KAFKA_CLUSTERS_0_READONLY: "false"
-      # KAFKA_CLUSTERS_0_METRICS_PORT: 9997
-      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: "http://schema-registry0:8081"
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: "http://schema-registry0:8181"
       KAFKA_CLUSTERS_0_AUDIT_TOPICAUDITENABLED: 'true'
       KAFKA_CLUSTERS_0_AUDIT_CONSOLEAUDITENABLED: 'true'
-#      AVROs
+#      AVRO
       KAFKA_CLUSTERS_0_VALUE_SERIALIZER: "io.confluent.kafka.serializers.KafkaAvroSerializer"
       KAFKA_CLUSTERS_0_VALUE_DESERIALIZER: "io.confluent.kafka.serializers.KafkaAvroDeserializer"
       # String Deserializer
@@ -115,9 +116,9 @@ services:
     image: confluentinc/cp-schema-registry:7.2.1
     container_name: schema-registry0
     networks:
-    - kafka-net
+    - home_network
     ports:
-    - "8081:8081"
+    - "8181:8181"
     depends_on:
     - kafka-0
     - kafka-1
@@ -126,7 +127,7 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "PLAINTEXT://kafka-0:9092,kafka-1:9092,kafka-2:9092"
       SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: PLAINTEXT
       SCHEMA_REGISTRY_HOST_NAME: schema-registry0
-      SCHEMA_REGISTRY_LISTENERS: "http://schema-registry0:8081"
+      SCHEMA_REGISTRY_LISTENERS: "http://schema-registry0:8181"
       SCHEMA_REGISTRY_SCHEMA_REGISTRY_INTER_INSTANCE_PROTOCOL: "http"
       SCHEMA_REGISTRY_LOG4J_ROOT_LOGLEVEL: INFO
       SCHEMA_REGISTRY_KAFKASTORE_TOPIC: _schemas
