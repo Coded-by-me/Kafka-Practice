@@ -103,7 +103,7 @@ public class ProducerServiceImpl implements ProducerService {
           "partitions", description.partitions().stream().map(partitionInfo -> Map.of(
               "partition", partitionInfo.partition(),
               "leader", partitionInfo.leader().id(),
-              "replicas", partitionInfo.replicas().stream().map(node -> node.id()).toList(),
+              "replicas", partitionInfo.replicas().stream().map(Node::id).toList(),
               "isr", partitionInfo.isr().stream().map(Node::id).toList()
           )).toList()
       );
