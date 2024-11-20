@@ -1,7 +1,9 @@
 package msa.heesane.kafka.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,6 +16,7 @@ import msa.heesane.avro_sample.TestDTO;
 import msa.heesane.kafka.model.CreateTopicRequest;
 import msa.heesane.kafka.service.ProducerService;
 import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.Config;
 import org.apache.kafka.clients.admin.ConfigEntry;
 import org.apache.kafka.clients.admin.DescribeConfigsResult;
@@ -23,6 +26,7 @@ import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.admin.TopicDescription;
 import org.apache.kafka.common.Node;
 import org.apache.kafka.common.config.ConfigResource;
+import org.apache.kafka.common.config.TopicConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -38,6 +42,12 @@ public class ProducerServiceImpl implements ProducerService {
   private final KafkaAdmin kafkaAdmin;
 
   private final ObjectMapper objectMapper;
+
+  private static final Set<String > ALLOWED_CONFIG_KEYS = new HashSet<>(Arrays.asList(
+      "retention.ms",
+      "cleanup.policy",
+      "min.insync.replicas"
+  ));
 
   @Value("${spring.kafka.template.default-topic}")
   private String topic;
@@ -136,5 +146,29 @@ public class ProducerServiceImpl implements ProducerService {
       log.info("error : {}", e.getMessage());
     }
     return null;
+  }
+
+  @Override
+  public void alterTopicConfig(String topic, Map<String, String> configs) {
+    try(AdminClient adminClient = AdminClient.create(kafkaAdmin.getConfigurationProperties())){
+
+      ConfigResource configResource = new ConfigResource(ConfigResource.Type.TOPIC, topic);
+
+      // 설정 키가 허용된 키인지 확인
+      if(!ALLOWED_CONFIG_KEYS.containsAll(configs.keySet())){
+        throw new IllegalArgumentException("Not allowed config key");
+      }
+
+      // AlterConfigOp 리스트 생성
+      List<AlterConfigOp> configOps = configs.entrySet().stream()
+          .map(entry -> new AlterConfigOp(
+              new ConfigEntry(entry.getKey(), entry.getValue()),
+              AlterConfigOp.OpType.SET // 설정 추가/수정
+          ))
+          .toList();
+      adminClient.incrementalAlterConfigs(Collections.singletonMap(configResource, configOps)).all().get();
+    }catch (Exception e){
+      log.info("error : {}", e.getMessage());
+    }
   }
 }

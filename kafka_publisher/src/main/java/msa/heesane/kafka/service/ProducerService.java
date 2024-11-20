@@ -3,7 +3,6 @@ package msa.heesane.kafka.service;
 import java.util.Map;
 import java.util.Set;
 import msa.heesane.kafka.model.CreateTopicRequest;
-import org.apache.kafka.clients.admin.Config;
 
 public interface ProducerService {
 
@@ -20,4 +19,6 @@ public interface ProducerService {
   Map<String, Object> describeTopic(String topic);
 
   Map<String,String> describeTopicConfig(String topic);
+
+  void alterTopicConfig(String topic, Map<String, String> configs);
 }
