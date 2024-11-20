@@ -69,4 +69,9 @@ public class KafkaController {
   public ResponseEntity<Map<String,Object>> describeConsumerGroup(@RequestParam("groupId") String groupId){
     return ResponseEntity.ok(producerService.describeConsumerGroup(groupId));
   }
+
+  @GetMapping("/list/consumer/offsets")
+  public ResponseEntity<Map<String, Object>> listConsumerGroupOffsets(@RequestParam("groupId") String groupId){
+    return ResponseEntity.ok(producerService.listConsumerGroupOffsets(groupId));
+  }
 }

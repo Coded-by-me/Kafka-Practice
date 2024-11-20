@@ -227,4 +227,24 @@ public class ProducerServiceImpl implements ProducerService {
 
     return Collections.emptyMap();
   }
+
+  @Override
+  public Map<String, Object> listConsumerGroupOffsets(String groupId) {
+
+    try(AdminClient adminClient = AdminClient.create(kafkaAdmin.getConfigurationProperties())){
+      return adminClient.listConsumerGroupOffsets(groupId).partitionsToOffsetAndMetadata().get().entrySet().stream()
+          .collect(Collectors.toMap(
+              entry -> entry.getKey().topic(),
+              entry -> Map.of(
+                  "offset", entry.getValue().offset(),
+                  "partition", entry.getKey().partition(),
+                  "metadata", entry.getValue().metadata()
+              )
+          ));
+    } catch (Exception e) {
+      log.info("error : {}", e.getMessage());
+    }
+
+    return Collections.emptyMap();
+  }
 }

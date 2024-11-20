@@ -25,4 +25,6 @@ public interface ProducerService {
   Map<String, Object> listConsumerGroups();
 
   Map<String,Object> describeConsumerGroup(String groupId);
+
+  Map<String, Object> listConsumerGroupOffsets(String groupId);
 }
