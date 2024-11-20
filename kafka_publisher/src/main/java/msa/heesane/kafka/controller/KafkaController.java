@@ -1,5 +1,6 @@
 package msa.heesane.kafka.controller;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -73,5 +74,10 @@ public class KafkaController {
   @GetMapping("/list/consumer/offsets")
   public ResponseEntity<Map<String, Object>> listConsumerGroupOffsets(@RequestParam("groupId") String groupId){
     return ResponseEntity.ok(producerService.listConsumerGroupOffsets(groupId));
+  }
+
+  @GetMapping("/list/consumer/offsets/all")
+  public ResponseEntity<Map<String, Map<String, List<Map<String, Object>>>>> listAllConsumerGroupOffsets(){
+    return ResponseEntity.ok(producerService.listAllConsumerGroupOffsets());
   }
 }

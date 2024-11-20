@@ -1,5 +1,6 @@
 package msa.heesane.kafka.service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import msa.heesane.kafka.model.CreateTopicRequest;
@@ -27,4 +28,6 @@ public interface ProducerService {
   Map<String,Object> describeConsumerGroup(String groupId);
 
   Map<String, Object> listConsumerGroupOffsets(String groupId);
+
+  Map<String, Map<String, List<Map<String, Object>>>> listAllConsumerGroupOffsets();
 }

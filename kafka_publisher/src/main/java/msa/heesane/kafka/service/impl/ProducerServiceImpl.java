@@ -3,6 +3,7 @@ package msa.heesane.kafka.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -243,6 +244,41 @@ public class ProducerServiceImpl implements ProducerService {
           ));
     } catch (Exception e) {
       log.info("error : {}", e.getMessage());
+    }
+
+    return Collections.emptyMap();
+  }
+
+  @Override
+  public Map<String, Map<String, List<Map<String, Object>>>> listAllConsumerGroupOffsets() {
+
+    try (AdminClient adminClient = AdminClient.create(kafkaAdmin.getConfigurationProperties())) {
+      // Consumer Groups 조회
+      Set<ConsumerGroupListing> consumerGroups = new HashSet<>(adminClient.listConsumerGroups().all().get());
+
+      Map<String, Map<String, List<Map<String, Object>>>> result = new HashMap<>();
+
+      for (ConsumerGroupListing consumerGroup : consumerGroups) {
+        // Consumer Group의 Offset 정보 조회
+        Map<String, List<Map<String, Object>>> topicOffsets = adminClient.listConsumerGroupOffsets(consumerGroup.groupId())
+            .partitionsToOffsetAndMetadata().get().entrySet().stream()
+            .collect(Collectors.groupingBy(
+                entry -> entry.getKey().topic(),
+                Collectors.mapping(entry -> Map.of(
+                    "partition", entry.getKey().partition(),
+                    "offset", entry.getValue().offset(),
+                    "metadata", entry.getValue().metadata()
+                ), Collectors.toList())
+            ));
+
+        // Consumer Group ID와 Topic Offset 정보 저장
+        result.put(consumerGroup.groupId(), topicOffsets);
+      }
+
+      return result;
+
+    } catch (Exception e) {
+      log.info("Error while fetching consumer group offsets: {}", e.getMessage());
     }
 
     return Collections.emptyMap();
