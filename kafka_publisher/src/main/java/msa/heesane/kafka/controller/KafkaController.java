@@ -5,7 +5,6 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import msa.heesane.kafka.model.CreateTopicRequest;
 import msa.heesane.kafka.service.ProducerService;
-import org.apache.kafka.clients.admin.ConsumerGroupDescription;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
