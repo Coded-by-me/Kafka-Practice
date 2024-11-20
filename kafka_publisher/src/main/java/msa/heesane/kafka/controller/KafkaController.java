@@ -5,6 +5,7 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import msa.heesane.kafka.model.CreateTopicRequest;
 import msa.heesane.kafka.service.ProducerService;
+import org.apache.kafka.clients.admin.ConsumerGroupDescription;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -63,5 +64,10 @@ public class KafkaController {
   @GetMapping("/list/consumer")
   public ResponseEntity<Map<String, Object>> listConsumerGroups(){
     return ResponseEntity.ok(producerService.listConsumerGroups());
+  }
+
+  @GetMapping("/describe/consumer")
+  public ResponseEntity<Map<String,Object>> describeConsumerGroup(@RequestParam("groupId") String groupId){
+    return ResponseEntity.ok(producerService.describeConsumerGroup(groupId));
   }
 }

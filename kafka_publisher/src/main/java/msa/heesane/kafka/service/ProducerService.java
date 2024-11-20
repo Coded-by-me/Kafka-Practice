@@ -3,6 +3,7 @@ package msa.heesane.kafka.service;
 import java.util.Map;
 import java.util.Set;
 import msa.heesane.kafka.model.CreateTopicRequest;
+import org.apache.kafka.clients.admin.ConsumerGroupDescription;
 
 public interface ProducerService {
 
@@ -23,4 +24,6 @@ public interface ProducerService {
   void alterTopicConfig(String topic, Map<String, String> configs);
 
   Map<String, Object> listConsumerGroups();
+
+  Map<String,Object> describeConsumerGroup(String groupId);
 }

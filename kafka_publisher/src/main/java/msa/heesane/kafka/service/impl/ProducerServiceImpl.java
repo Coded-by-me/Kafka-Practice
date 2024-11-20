@@ -19,6 +19,7 @@ import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.Config;
 import org.apache.kafka.clients.admin.ConfigEntry;
+import org.apache.kafka.clients.admin.ConsumerGroupDescription;
 import org.apache.kafka.clients.admin.ConsumerGroupListing;
 import org.apache.kafka.clients.admin.DescribeConfigsResult;
 import org.apache.kafka.clients.admin.DescribeTopicsResult;
@@ -148,7 +149,7 @@ public class ProducerServiceImpl implements ProducerService {
     } catch (Exception e) {
       log.info("error : {}", e.getMessage());
     }
-    return null;
+    return Collections.emptyMap();
   }
 
   @Override
@@ -194,6 +195,36 @@ public class ProducerServiceImpl implements ProducerService {
       log.info("error : {}", e.getMessage());
     }
 
-    return Map.of();
+    return Collections.emptyMap();
+  }
+
+  @Override
+  public Map<String,Object> describeConsumerGroup(String groupId) {
+
+    try(AdminClient adminClient = AdminClient.create(kafkaAdmin.getConfigurationProperties())){
+      Map<String, ConsumerGroupDescription> groupDescriptionMap = adminClient.describeConsumerGroups(
+          Collections.singletonList(groupId)
+      ).all().get();
+
+      ConsumerGroupDescription consumerGroupDescription = groupDescriptionMap.get(groupId);
+
+      return Map.of(
+          "groupId", consumerGroupDescription.groupId(),
+          "state", consumerGroupDescription.state(),
+          "is simple", consumerGroupDescription.isSimpleConsumerGroup(),
+          "members", consumerGroupDescription.members().stream().map(memberDescription -> Map.of(
+              "clientId", memberDescription.clientId(),
+              "host", memberDescription.host(),
+              "assignment", memberDescription.assignment().topicPartitions().stream().map(tp -> Map.of(
+                  "topic", tp.topic(),
+                  "partition", tp.partition()
+              )).toList()
+          )).toList()
+      );
+    } catch (Exception e) {
+      log.info("error : {}", e.getMessage());
+    }
+
+    return Collections.emptyMap();
   }
 }
