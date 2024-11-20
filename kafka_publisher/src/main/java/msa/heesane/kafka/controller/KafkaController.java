@@ -5,6 +5,7 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import msa.heesane.kafka.model.CreateTopicRequest;
 import msa.heesane.kafka.service.ProducerService;
+import org.apache.kafka.clients.admin.Config;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,6 +49,11 @@ public class KafkaController {
   @GetMapping("/describe")
   public ResponseEntity<Map<String, Object>> describeTopic(@RequestParam("topic") String topic){
     return ResponseEntity.ok(producerService.describeTopic(topic));
+  }
+
+  @GetMapping("/describe/config")
+  public ResponseEntity<Map<String,String>> describeTopicConfig(@RequestParam("topic") String topic){
+    return ResponseEntity.ok(producerService.describeTopicConfig(topic));
   }
 
 }

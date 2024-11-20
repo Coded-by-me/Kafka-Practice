@@ -7,17 +7,22 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import msa.heesane.avro_sample.TestDTO;
 import msa.heesane.kafka.model.CreateTopicRequest;
 import msa.heesane.kafka.service.ProducerService;
 import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.Config;
+import org.apache.kafka.clients.admin.ConfigEntry;
+import org.apache.kafka.clients.admin.DescribeConfigsResult;
 import org.apache.kafka.clients.admin.DescribeTopicsResult;
 import org.apache.kafka.clients.admin.ListTopicsResult;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.admin.TopicDescription;
 import org.apache.kafka.common.Node;
+import org.apache.kafka.common.config.ConfigResource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -112,5 +117,24 @@ public class ProducerServiceImpl implements ProducerService {
       log.info("error : {}", e.getMessage());
     }
     return Collections.emptyMap();
+  }
+
+  @Override
+  public Map<String,String> describeTopicConfig(String topic) {
+
+    try(AdminClient adminClient = AdminClient.create(kafkaAdmin.getConfigurationProperties())){
+      ConfigResource configResource = new ConfigResource(ConfigResource.Type.TOPIC, topic);
+
+      DescribeConfigsResult describeConfigsResult = adminClient.describeConfigs(List.of(configResource));
+
+      Config config = describeConfigsResult.all().get().get(configResource);
+
+      return config.entries().stream()
+          .collect(Collectors.toMap(ConfigEntry::name, ConfigEntry::value));
+
+    } catch (Exception e) {
+      log.info("error : {}", e.getMessage());
+    }
+    return null;
   }
 }
