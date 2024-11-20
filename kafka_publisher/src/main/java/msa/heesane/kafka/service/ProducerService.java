@@ -21,4 +21,6 @@ public interface ProducerService {
   Map<String,String> describeTopicConfig(String topic);
 
   void alterTopicConfig(String topic, Map<String, String> configs);
+
+  Map<String, Object> listConsumerGroups();
 }

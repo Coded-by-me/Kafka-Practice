@@ -60,4 +60,8 @@ public class KafkaController {
     producerService.alterTopicConfig(topic, config);
   }
 
+  @GetMapping("/list/consumer")
+  public ResponseEntity<Map<String, Object>> listConsumerGroups(){
+    return ResponseEntity.ok(producerService.listConsumerGroups());
+  }
 }

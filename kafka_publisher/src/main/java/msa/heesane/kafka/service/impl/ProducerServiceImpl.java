@@ -19,6 +19,7 @@ import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.Config;
 import org.apache.kafka.clients.admin.ConfigEntry;
+import org.apache.kafka.clients.admin.ConsumerGroupListing;
 import org.apache.kafka.clients.admin.DescribeConfigsResult;
 import org.apache.kafka.clients.admin.DescribeTopicsResult;
 import org.apache.kafka.clients.admin.ListTopicsResult;
@@ -42,7 +43,7 @@ public class ProducerServiceImpl implements ProducerService {
 
   private final ObjectMapper objectMapper;
 
-  private static final Set<String > ALLOWED_CONFIG_KEYS = new HashSet<>(Arrays.asList(
+  private static final Set<String> ALLOWED_CONFIG_KEYS = new HashSet<>(Arrays.asList(
       "retention.ms",
       "cleanup.policy",
       "min.insync.replicas"
@@ -53,13 +54,14 @@ public class ProducerServiceImpl implements ProducerService {
 
   @Override
   public void sendWithObjectMapper(String name, int age) {
-    try{
+    try {
       kafkaTemplate.send(
           topic,
           "testKey",
-          objectMapper.writeValueAsString(new TestDTO(UUID.randomUUID().hashCode(),name, age,"address"))
+          objectMapper.writeValueAsString(
+              new TestDTO(UUID.randomUUID().hashCode(), name, age, "address"))
       );
-    }catch(Exception e){
+    } catch (Exception e) {
       log.info("error : {}", e.getMessage());
     }
 
@@ -70,17 +72,18 @@ public class ProducerServiceImpl implements ProducerService {
     kafkaTemplate.send(
         topic,
         "testKey",
-        new TestDTO(UUID.randomUUID().hashCode(),name, age,"address")
+        new TestDTO(UUID.randomUUID().hashCode(), name, age, "address")
     );
   }
 
   @Override
   public void createTopic(CreateTopicRequest request) {
-    try(AdminClient adminClient = AdminClient.create(kafkaAdmin.getConfigurationProperties())){
+    try (AdminClient adminClient = AdminClient.create(kafkaAdmin.getConfigurationProperties())) {
       adminClient.createTopics(
-          List.of(new NewTopic(request.getTopic(), request.getPartitions(), request.getReplicationFactor()))
+          List.of(new NewTopic(request.getTopic(), request.getPartitions(),
+              request.getReplicationFactor()))
       );
-    } catch(Exception e){
+    } catch (Exception e) {
       log.info("error : {}", e.getMessage());
     }
   }
@@ -129,12 +132,13 @@ public class ProducerServiceImpl implements ProducerService {
   }
 
   @Override
-  public Map<String,String> describeTopicConfig(String topic) {
+  public Map<String, String> describeTopicConfig(String topic) {
 
-    try(AdminClient adminClient = AdminClient.create(kafkaAdmin.getConfigurationProperties())){
+    try (AdminClient adminClient = AdminClient.create(kafkaAdmin.getConfigurationProperties())) {
       ConfigResource configResource = new ConfigResource(ConfigResource.Type.TOPIC, topic);
 
-      DescribeConfigsResult describeConfigsResult = adminClient.describeConfigs(List.of(configResource));
+      DescribeConfigsResult describeConfigsResult = adminClient.describeConfigs(
+          List.of(configResource));
 
       Config config = describeConfigsResult.all().get().get(configResource);
 
@@ -149,12 +153,12 @@ public class ProducerServiceImpl implements ProducerService {
 
   @Override
   public void alterTopicConfig(String topic, Map<String, String> configs) {
-    try(AdminClient adminClient = AdminClient.create(kafkaAdmin.getConfigurationProperties())){
+    try (AdminClient adminClient = AdminClient.create(kafkaAdmin.getConfigurationProperties())) {
 
       ConfigResource configResource = new ConfigResource(ConfigResource.Type.TOPIC, topic);
 
       // 설정 키가 허용된 키인지 확인
-      if(!ALLOWED_CONFIG_KEYS.containsAll(configs.keySet())){
+      if (!ALLOWED_CONFIG_KEYS.containsAll(configs.keySet())) {
         throw new IllegalArgumentException("Not allowed config key");
       }
 
@@ -165,9 +169,31 @@ public class ProducerServiceImpl implements ProducerService {
               AlterConfigOp.OpType.SET // 설정 추가/수정
           ))
           .toList();
-      adminClient.incrementalAlterConfigs(Collections.singletonMap(configResource, configOps)).all().get();
-    }catch (Exception e){
+      adminClient.incrementalAlterConfigs(Collections.singletonMap(configResource, configOps)).all()
+          .get();
+    } catch (Exception e) {
       log.info("error : {}", e.getMessage());
     }
+  }
+
+  @Override
+  public Map<String, Object> listConsumerGroups() {
+
+    try (AdminClient adminClient = AdminClient.create(kafkaAdmin.getConfigurationProperties())) {
+
+      return adminClient.listConsumerGroups()
+          .all().get().stream()
+          .collect(Collectors.toMap(
+              ConsumerGroupListing::groupId,
+              group -> Map.of(
+                  "state", group.state()
+              )
+          ));
+
+    } catch (Exception e) {
+      log.info("error : {}", e.getMessage());
+    }
+
+    return Map.of();
   }
 }
