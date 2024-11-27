@@ -38,7 +38,7 @@ public class KafkaConfig {
     config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
     config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer.class.getName());
     config.put("schema.registry.url", schemaRegistryUrl);
-    config.put(ConsumerConfig.ALLOW_AUTO_CREATE_TOPICS_CONFIG, false);
+    config.put(ConsumerConfig.ALLOW_AUTO_CREATE_TOPICS_CONFIG, true);
     config.put("specific.avro.reader", specificAvroReader);
 
     return new DefaultKafkaConsumerFactory<>(config);
