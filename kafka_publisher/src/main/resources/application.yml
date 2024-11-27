@@ -1,6 +1,6 @@
 spring:
   kafka:
-    bootstrap-servers: localhost:19092,localhost:29092,localhost:39092  # Kafka Broker Address
+    bootstrap-servers: 192.168.55.139:19092,192.168.55.139:29092,192.168.55.139:39092  # Kafka Broker Address
     producer:
       properties:
         schema.registry.url: http://localhost:8081 # Schema Registry Address
