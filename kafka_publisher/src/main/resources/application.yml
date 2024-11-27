@@ -3,7 +3,7 @@ spring:
     bootstrap-servers: 192.168.55.139:19092,192.168.55.139:29092,192.168.55.139:39092  # Kafka Broker Address
     producer:
       properties:
-        schema.registry.url: http://localhost:8081 # Schema Registry Address
+        schema.registry.url: http://registry.coded-by.me # Schema Registry Address
         specific.avro.reader: true
         allow.auto.create.topics: false
     template:

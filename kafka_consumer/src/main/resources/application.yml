@@ -7,7 +7,7 @@ spring:
     template:
       default-topic: my-topic # Default Kafka Topic Setting
     properties:
-      schema.registry.url: http://localhost:8081 # Schema Registry Address
+      schema.registry.url: http://registry.coded-by.me # Schema Registry Address
       specific.avro.reader: true
       allow.auto.create.topics: false
 server:
