@@ -5,7 +5,7 @@ spring:
       group-id: data_consumer # Consumer Group ID
       auto-offset-reset: earliest
     template:
-      default-topic: my-topic # Default Kafka Topic Setting
+      default-topic: message # Default Kafka Topic Setting
     properties:
       schema.registry.url: http://registry.coded-by.me # Schema Registry Address
       specific.avro.reader: true
